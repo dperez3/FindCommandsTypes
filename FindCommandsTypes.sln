@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindCommandsTypes", "FindCommandsTypes\FindCommandsTypes.csproj", "{A4D3BF2E-6774-418C-AF2E-6664DB8CF640}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSC CC Dependencies Getter", "SSC CC Dependencies Getter\SSC CC Dependencies Getter.csproj", "{1D715C02-8667-439C-BFE5-7E1E80264ABE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependenciesFinder", "DependenciesFinder\DependenciesFinder.csproj", "{8F8A00FE-12D4-4FE3-A317-8DC11B422B68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A4D3BF2E-6774-418C-AF2E-6664DB8CF640}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4D3BF2E-6774-418C-AF2E-6664DB8CF640}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4D3BF2E-6774-418C-AF2E-6664DB8CF640}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4D3BF2E-6774-418C-AF2E-6664DB8CF640}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D715C02-8667-439C-BFE5-7E1E80264ABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D715C02-8667-439C-BFE5-7E1E80264ABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D715C02-8667-439C-BFE5-7E1E80264ABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D715C02-8667-439C-BFE5-7E1E80264ABE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F8A00FE-12D4-4FE3-A317-8DC11B422B68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F8A00FE-12D4-4FE3-A317-8DC11B422B68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F8A00FE-12D4-4FE3-A317-8DC11B422B68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F8A00FE-12D4-4FE3-A317-8DC11B422B68}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

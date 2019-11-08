@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
+        <RootNamespace>SSC_CC_Dependencies_Getter</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Octokit" Version="0.36.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DependenciesFinder\DependenciesFinder.csproj" />
+    </ItemGroup>
+
+</Project>

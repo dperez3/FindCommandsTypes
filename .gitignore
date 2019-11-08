@@ -1,0 +1,61 @@
+obj
+bin
+_ReSharper.*
+TestResults
+*.[uU]ser
+*.docstates
+*.suo
+*.swp
+*.bin
+TestResults
+PublishFiles/version.txt
+PublishFiles/temp.proj
+Publish
+Deploy
+.bundle
+bundle
+Build
+EHBuild
+TestResults.xml
+*.swo
+Source/Lib/Raven/Server/Data
+Source/Lib/Raven/Server/Logs
+Source/Lib/Raven/Server/Tenants
+packages
+*.orig
+*.ncrunchsolution
+*.tmp_proj
+ripple.log
+ClickOnceOutput
+node_modules
+st/stresults.htm
+.idea/
+*.sln.iml
+.idea*
+src/.vs/config/applicationhost.config
+**/*.DS_Store
+.vs/
+st/
+/paket-files/
+_NOTE_CONFIG_FILE_TARGETS_*
+.sonarqube/
+
+
+
+# Idea/Rider specific settings.
+# Refer to https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
+# & https://intellij-support.jetbrains.com/hc/en-us/articles/206544839-How-to-manage-projects-under-Version-Control-Systems for more
+## Each previously ignored directory level must be unignored before unignoring their files
+## Could be room for improvement
+
+## Ignore all .idea folders and files by default
+**/.idea/**
+
+## Unignore /runConfigurations/ folder & files to store shared run configuration.
+!**/.idea/**/runConfigurations/
+!**/.idea/**/runConfigurations/**
+
+## Unignore misc.xml (contains other shared settings)
+!**/.idea/
+!**/.idea.*/
+!**/.idea/**/misc.xml
