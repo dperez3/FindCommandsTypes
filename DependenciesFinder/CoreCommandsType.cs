@@ -9,7 +9,7 @@ namespace DependenciesFinder
     public class CoreCommandsType
     {
         private readonly Type _type;
-        private IEnumerable<Repository> _repos;
+        private IEnumerable<SearchCode> _code;
 
         public CoreCommandsType(Type type) => _type = type;
 
@@ -18,13 +18,13 @@ namespace DependenciesFinder
 
         public async Task<IEnumerable<Repository>> GetDependentRepositories()
         {
-            _repos ??= await getRepositoriesContainingName();
+            _code ??= await getCodeContainingName();
 
-            return _repos.Where(isRepoTrulyDependent);
+            return _code.Select(x => x.Repository).Where(isRepoTrulyDependent);
         }
 
-        private async Task<IEnumerable<Repository>> getRepositoriesContainingName() =>
-            await GitHubSearcher.GetRepositoriesContainingText(Name);
+        private async Task<IEnumerable<SearchCode>> getCodeContainingName() =>
+            await GitHubSearcher.GetCodeContainingTerm(Name);
 
         private bool isRepoTrulyDependent(Repository repository)
         {
