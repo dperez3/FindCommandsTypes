@@ -32,7 +32,9 @@ namespace FindCommandsTypes
 
         private static async Task printSSCCommandInformation()
         {
-            await foreach (var command in CoreCommandsService.GetAllPublicTypesThatSSCDependsOnStream(CommandsDLLPath))
+            var coreCommandsService = new CoreCommandsService(CommandsDLLPath);
+            
+            foreach (var command in await coreCommandsService.GetAllCommandsUsedBySSC())
             {
                 Debug.WriteLine(command.FullName);
 

@@ -40,7 +40,7 @@ namespace DependenciesFinder
             var fileContents = res.Items
                                   .Select(x => GetFileContents(x.Repository.Id, x.Path).Result)
                                   .Where(x => x.Content.Contains($"Consume({commandName}"));
-            
+
             var consumers = fileContents
                 .Select(x => new Consumer(commandName, x));
 
@@ -50,7 +50,7 @@ namespace DependenciesFinder
         public static async Task<IEnumerable<SearchCode>> GetCodeContainingTerm(string term)
         {
             var res = await _github.Search.SearchCode(new SearchCodeRequest(term));
-            
+
             return res.Items;
         }
 
@@ -64,7 +64,7 @@ namespace DependenciesFinder
                                                                params string[] terms)
         {
             var repoContent = await GetFileContents(repositoryId, path);
-            
+
             return terms
                 .All(x => repoContent.Content.Contains(x));
         }
@@ -72,8 +72,31 @@ namespace DependenciesFinder
         public static async Task<RepositoryContent> GetFileContents(long repositoryId, string path)
         {
             var res = await _github.Repository.Content.GetAllContentsByRef(repositoryId, path, "master");
-            
+
             return res.Single();
+        }
+
+        public static async Task<IEnumerable<SearchCode>> FindCodeContainingAllTerms(
+            IEnumerable<string> terms,
+            string repo = null)
+        {
+            var searchCodeRequest = repo == null ?
+                                        new SearchCodeRequest(terms.First()) :
+                                        new SearchCodeRequest(terms.First())
+                                        {
+                                            Repos = new RepositoryCollection
+                                                { repo }
+                                        };
+
+            var res = await _github.Search.SearchCode(searchCodeRequest);
+
+            var items = await Task.WhenAll(res.Items.Select(async x => new
+            {
+                x,
+                containsAllTerms = await DoesFileContainAllTerms(x.Repository.Id, x.Path, terms.ToArray())
+            }));
+
+            return items.Where(x => x.containsAllTerms).Select(x => x.x);
         }
     }
 }
