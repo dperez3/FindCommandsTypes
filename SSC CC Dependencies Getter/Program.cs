@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DependenciesFinder;
 using Octokit;
 
@@ -13,7 +14,9 @@ namespace FindCommandsTypes
 
         static void Main(string[] args)
         {
-            foreach (var sscExclusiveCommand in getSSCExclusiveCommands())
+            printSSCCommandInformation().Wait();
+
+            /*foreach (var sscExclusiveCommand in getSeansSSCExclusiveCommands())
             {
                 Debug.WriteLine(sscExclusiveCommand);
                 
@@ -23,12 +26,47 @@ namespace FindCommandsTypes
                     Debug.WriteLine(consumer, sscExclusiveCommand);
                 }
                 Debug.Unindent();
+            }*/
+        }
+
+        private static async Task printSSCCommandInformation()
+        {
+            await foreach (var command in CoreCommandsService.GetAllPublicTypesThatSSCDependsOnStream())
+            {
+                Debug.WriteLine(command.FullName);
+
+                Debug.Indent();
+                Debug.WriteLine("---Dependents---");
+                Debug.Indent();
+                foreach (var repo in command.DependentRepositories)
+                {
+                    Debug.WriteLine(repo.FullName, command.Name);
+                }
+                Debug.Unindent();
+                Debug.Unindent();
+
+                Debug.Indent();
+                Debug.WriteLine("---Consumers---");
+                Debug.Indent();
+                foreach (var consumer in command.Consumers)
+                {
+                    foreach (var line in consumer.ConsumerLines)
+                    {
+                        Debug.WriteLine(line, command.Name);
+                    }
+
+                    Debug.Indent();
+                    Debug.WriteLine(consumer);
+                    Debug.Unindent();
+                }
+                Debug.Unindent();
+                Debug.Unindent();
             }
         }
 
-        private static void doOtherTHing()
+        /*private static void doOtherTHing()
         {
-            foreach (var coreCommandsType in CoreCommands.GetAllPublicTypesThatSSCDependsOn().Result)
+            foreach (var coreCommandsType in CoreCommandsService.GetAllPublicTypesThatSSCDependsOn().Result)
             {
                 Debug.WriteLine(coreCommandsType.FullName);
 
@@ -40,9 +78,9 @@ namespace FindCommandsTypes
 
                 Debug.Unindent();
             }
-        }
+        }*/
 
-        private static IEnumerable<string> getSSCExclusiveCommands()
+        private static IEnumerable<string> getSeansSSCExclusiveCommands()
         {
             yield return "AccountStatusFlagsSaveForPersonMessage";
             yield return "AccountStatusFlagsSaveForPersonResponseMessage";

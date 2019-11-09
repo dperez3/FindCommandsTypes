@@ -27,26 +27,22 @@ namespace DependenciesFinder
                 .Where(x => x.);
         }*/
 
-        public static async Task<IEnumerable<string>> GetConsumersForCommand(string commandName)
+        public static async Task<IEnumerable<Consumer>> GetConsumersForCommand(string commandName)
         {
             var res = await _github.Search.SearchCode(new SearchCodeRequest(commandName)
             {
-                Repos = new RepositoryCollection()
+                Repos = new RepositoryCollection
                 {
                     "extend-health/service-bus-consumers"
-                },
-                
+                }
             });
 
             var fileContents = res.Items
-                                  .Select(x => getFileContents(x.Repository.Id, x.Path).Result)
-                                  .Where(x => x.Contains($"Consume({commandName}"));
-
-            var regex = $"Consume\\({commandName}(.|\\n)*";
+                                  .Select(x => GetFileContents(x.Repository.Id, x.Path).Result)
+                                  .Where(x => x.Content.Contains($"Consume({commandName}"));
+            
             var consumers = fileContents
-                .Select(x => Regex.Matches(x, regex))
-                .SelectMany(x => x)
-                .Select(x => x.Value);
+                .Select(x => new Consumer(commandName, x));
 
             return consumers;
         }
@@ -58,26 +54,26 @@ namespace DependenciesFinder
             return res.Items;
         }
 
-        private static async Task<bool> repoContainsFileThatContainAllTerms(SearchCode code, string[] terms)
+        public static async Task<bool> RepoContainsFileThatContainAllTerms(SearchCode code, string[] terms)
         {
-            return await doesFileContainAllTerms(code.Repository.Id, code.Path, terms);
+            return await DoesFileContainAllTerms(code.Repository.Id, code.Path, terms);
         }
 
-        private static async Task<bool> doesFileContainAllTerms(long repositoryId,
+        public static async Task<bool> DoesFileContainAllTerms(long repositoryId,
                                                                string path,
-                                                               string[] terms)
+                                                               params string[] terms)
         {
-            var fileContents = await getFileContents(repositoryId, path);
+            var repoContent = await GetFileContents(repositoryId, path);
             
             return terms
-                .All(x => fileContents.Contains(x));
+                .All(x => repoContent.Content.Contains(x));
         }
 
-        private static async Task<string> getFileContents(long repositoryId, string path)
+        public static async Task<RepositoryContent> GetFileContents(long repositoryId, string path)
         {
             var res = await _github.Repository.Content.GetAllContentsByRef(repositoryId, path, "master");
-
-            return res.First().Content;
+            
+            return res.Single();
         }
     }
 }
