@@ -8,32 +8,19 @@ namespace DependenciesFinder
 {
     public class CoreCommandsService
     {
-        private const string DLLLocation =
-            "C:\\projects\\ssc-main\\packages\\ExtendHealth.Core.Commands\\lib\\net40\\ExtendHealth.Core.Commands.dll";
-
-        public static async Task<IEnumerable<CoreCommandsType>> GetAllPublicTypesThatSSCDependsOn()
+        public static async IAsyncEnumerable<CoreCommandsType> GetAllPublicTypesThatSSCDependsOnStream(string commandsDllPath)
         {
-            return await Task.WhenAll(
-                                   GetAllPublicTypes()
-                                       .Select(async x => await CoreCommandsType.Create(x)));
-        }
-
-        public static async IAsyncEnumerable<CoreCommandsType> GetAllPublicTypesThatSSCDependsOnStream()
-        {
-            foreach (var type in GetAllPublicTypes())
+            foreach (var type in getAllPublicTypes(commandsDllPath))
             {
                 var coreCommandsType = await CoreCommandsType.Create(type);
                 if (coreCommandsType.IsSSCDependency)
                     yield return coreCommandsType;
             }
-            
         }
 
-        public static IEnumerable<Type> GetAllPublicTypes()
+        private static IEnumerable<Type> getAllPublicTypes(string commandsDllPath)
         {
-            var commandsAssembly = Assembly.LoadFrom(DLLLocation);
-
-            return commandsAssembly
+            return Assembly.LoadFrom(commandsDllPath)
                              .GetTypes()
                              .Where(x => x.IsPublic);
         }

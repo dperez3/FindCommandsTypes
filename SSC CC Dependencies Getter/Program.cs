@@ -10,7 +10,8 @@ namespace FindCommandsTypes
 {
     class Program
     {
-        private const string _messageRegex = "[a-zA-Z]+Command";
+        private const string CommandsDLLPath =
+            "C:\\projects\\ssc-main\\packages\\ExtendHealth.Core.Commands\\lib\\net40\\ExtendHealth.Core.Commands.dll";
 
         static void Main(string[] args)
         {
@@ -31,7 +32,7 @@ namespace FindCommandsTypes
 
         private static async Task printSSCCommandInformation()
         {
-            await foreach (var command in CoreCommandsService.GetAllPublicTypesThatSSCDependsOnStream())
+            await foreach (var command in CoreCommandsService.GetAllPublicTypesThatSSCDependsOnStream(CommandsDLLPath))
             {
                 Debug.WriteLine(command.FullName);
 
