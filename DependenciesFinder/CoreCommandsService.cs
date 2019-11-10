@@ -10,56 +10,39 @@ namespace DependenciesFinder
 {
     public class CoreCommandsService
     {
-        private readonly string _commandsDllPath;
+        private readonly GitHubService _gitHubService;
         
-        public CoreCommandsService(string commandsDllPath) { _commandsDllPath = commandsDllPath; }
-
-        public async Task<IEnumerable<CoreCommandsType>> GetAllCommandsUsedBySSC()
+        public CoreCommandsService(GitHubService gitHubService)
         {
-            var commandsUsedBySsc = new ConcurrentBag<CoreCommandsType>();
-            await Task.WhenAll(getAllPublicTypes(_commandsDllPath).Select(async x =>
-            {
-                var coreCommandsType = new CoreCommandsType(x);
-
-                var sscCode =
-                    await GitHubSearcher.FindCodeContainingAllTerms(
-                        new []{ coreCommandsType.Name, coreCommandsType.Namespace }, 
-                        "extend-health/ssc-main");
-
-                if (sscCode.Any())
-                    commandsUsedBySsc.Add(coreCommandsType);
-            }));
-
-            await Task.WhenAll(
-                loadDependentCode(commandsUsedBySsc),
-                loadConsumers(commandsUsedBySsc)
-            );
-
-            return commandsUsedBySsc;
+            _gitHubService = gitHubService;
         }
 
-        private async Task loadDependentCode(IEnumerable<CoreCommandsType> commands)
+        public async Task<IEnumerable<CoreCommandsType>> GetAllCommandsUsedBySSC(string commandsDllPath, Func<Type, bool> filter, IEnumerable<string> repositories)
         {
-            await Task.WhenAll(commands.Select(loadDependentCode));
+            var types = getAllPublicTypes(commandsDllPath)
+                .Where(filter);
+            var coreCommandsTypes = await Task.WhenAll(
+                        types.Select(
+                                           async x => new CoreCommandsType(x, await _gitHubService.FindCSharpCodeAsync(repositories, x.Name))));
+            
+            return coreCommandsTypes.Where(x => x.FoundInSSCCode);
         }
 
-        private async Task loadDependentCode(CoreCommandsType command)
+        public async Task<IEnumerable<CoreCommandsType>> GetAllCommandsUsedBySSC(IEnumerable<string> commandNames,
+                                                                                 IEnumerable<string> repositories)
         {
-            command.DependentCode = await GitHubSearcher.FindCodeContainingAllTerms(new []{ command.Name, command.Namespace });
+            var coreCommandsTypes = await Task.WhenAll(
+                        commandNames.Select(
+                                           async x => new CoreCommandsType(x, x, await _gitHubService.FindCSharpCodeAsync(repositories, x))));
+            
+            return coreCommandsTypes.Where(x => x.FoundInSSCCode);
         }
-        
-        private async Task loadConsumers(IEnumerable<CoreCommandsType> commands)
-        {
-            await Task.WhenAll(commands.Select(loadConsumers));
-        }
-
-        private async Task loadConsumers(CoreCommandsType command) { command.Consumers = await GitHubSearcher.GetConsumersForCommand(command.Name); }
 
         private static IEnumerable<Type> getAllPublicTypes(string commandsDllPath)
         {
             return Assembly.LoadFrom(commandsDllPath)
-                             .GetTypes()
-                             .Where(x => x.IsPublic);
+                           .GetTypes()
+                           .Where(x => x.IsPublic);
         }
     }
 }

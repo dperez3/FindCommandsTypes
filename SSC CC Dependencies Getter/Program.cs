@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Timers;
 using DependenciesFinder;
 using Octokit;
+using SSC_CC_Dependencies_Getter.Writers;
 
 namespace FindCommandsTypes
 {
@@ -13,75 +16,49 @@ namespace FindCommandsTypes
         private const string CommandsDLLPath =
             "C:\\projects\\ssc-main\\packages\\ExtendHealth.Core.Commands\\lib\\net40\\ExtendHealth.Core.Commands.dll";
 
-        static void Main(string[] args)
-        {
-            printSSCCommandInformation().Wait();
+        private static readonly string[] Repositories = {
+            "extend-health/CarrierPolicy",
+            "extend-health/pega-gateway-service",
+            "extend-health/service-bus-commands",
+            "extend-health/service-bus-consumers",
+            "extend-health/ssc-main",
+            "extend-health/ssc-queries",
+            "extend-health/ssc-query-handlers"
+        };
 
-            /*foreach (var sscExclusiveCommand in getSeansSSCExclusiveCommands())
-            {
-                Debug.WriteLine(sscExclusiveCommand);
-                
-                Debug.Indent();
-                foreach (var consumer in GitHubSearcher.GetConsumersForCommand(sscExclusiveCommand).Result)
-                {
-                    Debug.WriteLine(consumer, sscExclusiveCommand);
-                }
-                Debug.Unindent();
-            }*/
-        }
+        private static readonly GitHubService _github;
+        private static readonly CoreCommandsService _coreCommandsService;
+        private static readonly IWriter _writer;
 
-        private static async Task printSSCCommandInformation()
+        static Program()
         {
-            var coreCommandsService = new CoreCommandsService(CommandsDLLPath);
+            _github = new GitHubService();
+            _coreCommandsService = new CoreCommandsService(_github);
             
-            foreach (var command in await coreCommandsService.GetAllCommandsUsedBySSC())
-            {
-                Debug.WriteLine(command.FullName);
-
-                Debug.Indent();
-                Debug.WriteLine("---Dependents---");
-                Debug.Indent();
-                foreach (var repo in command.DependentRepositories)
-                {
-                    Debug.WriteLine(repo.FullName, command.Name);
-                }
-                Debug.Unindent();
-                Debug.Unindent();
-
-                Debug.Indent();
-                Debug.WriteLine("---Consumers---");
-                Debug.Indent();
-                foreach (var consumer in command.Consumers)
-                {
-                    foreach (var line in consumer.ConsumerLines)
-                    {
-                        Debug.WriteLine(line, command.Name);
-                    }
-
-                    Debug.Indent();
-                    Debug.WriteLine(consumer);
-                    Debug.Unindent();
-                }
-                Debug.Unindent();
-                Debug.Unindent();
-            }
+            //_writer = new ConsoleWriter();
+            _writer = new DebugWriter();
         }
 
-        /*private static void doOtherTHing()
+        static async Task Main(string[] args)
         {
-            foreach (var coreCommandsType in CoreCommandsService.GetAllPublicTypesThatSSCDependsOn().Result)
+            try
             {
-                Debug.WriteLine(coreCommandsType.FullName);
+                var seansCommands = await _coreCommandsService.GetAllCommandsUsedBySSC(getSeansSSCExclusiveCommands(), Repositories);
+                var dllCommands = await _coreCommandsService.GetAllCommandsUsedBySSC(CommandsDLLPath, 
+                                                                                     x => x.Name.EndsWith("Command") || x.Name.EndsWith("Message"),
+                                                                                     Repositories);
 
-                Debug.Indent();
-                foreach (var repository in coreCommandsType.GetDependentRepositories().Result)
-                {
-                    Debug.WriteLine(repository.FullName, coreCommandsType.Name);
-                }
-
-                Debug.Unindent();
+                await _writer.WriteComparisonAsync(Repositories, seansCommands.Where(x => dllCommands.All(y => y.Name != x.Name)),
+                        dllCommands.Where(x => seansCommands.All(y => y.Name != x.Name)));
+            
+                await _writer.WriteAsync(Repositories, dllCommands);
             }
-        }*/
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                throw;
+            }
+        }
 
         private static IEnumerable<string> getSeansSSCExclusiveCommands()
         {
@@ -187,115 +164,6 @@ namespace FindCommandsTypes
             yield return "TaskUnMarkAsCompletedMessage";
             yield return "UpsertVoluntaryBenefitsCommand";
             yield return "VerifiedForPersonMessage";
-            yield return "VoluntaryBenefitsEnrollmentResponseMessage";
-        }
-
-        private static IEnumerable<string> getAlreadyImportedTypes()
-        {
-            yield return "AarpStateSpecificAttachmentsMessage";
-            yield return "AccountStatusFlagsSaveForPersonMessage";
-            yield return "AccountStatusFlagsSaveForPersonResponseMessage";
-            yield return "AddressChangeMessage";
-            yield return "AddressDeleteForPersonMessage";
-            yield return "AddressesVerifiedForPersonMessage";
-            yield return "AddressMessage";
-            yield return "AddressSaveForPersonMessage";
-            yield return "AddressSaveForPersonResponseMessage";
-            yield return "ApplicantForManuallyEnteredApplicationMessage";
-            yield return "ApplicationDemoteRequestMessage";
-            yield return "ApplicationDiscardRequestMessage";
-            yield return "ApplicationDisclaimerMessage";
-            yield return "ApplicationExternalLoginMessage";
-            yield return "ApplicationPromoteRequestMessage";
-            yield return "ApplicationSaveMessage";
-            yield return "ApplicationSaveStatusResponseMessage";
-            yield return "ApplicationsSaveTypeRequestMessage";
-            yield return "ApplicationsSaveTypeResponseMessage";
-            yield return "AuthoriedRepSendDocsInstructionMessage";
-            yield return "BenefitGroupingMessage";
-            yield return "CampaignDeleteForPersonMessage";
-            yield return "CampaignMessage";
-            yield return "CampaignSaveForPersonMessage";
-            yield return "CampaignsVerifiedForPersonMessage";
-            yield return "CarrierMessage";
-            yield return "CreateCustomerRequestMessage";
-            yield return "CreateCustomerResponseMessage";
-            yield return "CreateManuallyEnteredApplicationResponseMessage";
-            yield return "CredentialMessage";
-            yield return "CurrentCoveragesRemoveForPersonMessage";
-            yield return "CurrentCoveragesSaveForPersonMessage";
-            yield return "CustomerPreferenceRemovedMessage";
-            yield return "CustomerPreferenceRemoveMessage";
-            yield return "CustomerPreferenceUpdatedMessage";
-            yield return "CustomerPreferenceUpdateMessage";
-            yield return "DrugInformationVerifiedForPersonMessage";
-            yield return "DrugPackageMessage";
-            yield return "DrugPackageReplaceWithGenericMessage";
-            yield return "DrugPackageReplaceWithGenericResponseMessage";
-            yield return "DrugPackageSaveResponseMessage";
-            yield return "EmailAddressDispositionMessage";
-            yield return "EmployeeMessage";
-            yield return "EmployeePresenceChangedToAvailableMessage";
-            yield return "EmployeeStillSignedInConfirmationMessage";
-            yield return "ForgotPasswordMessage";
-            yield return "InitiateResetPasswordMessage";
-            yield return "LoginSuccessAcknowledgedMessage";
-            yield return "LogMessage";
-            yield return "MedicareDataVerifiedForPersonMessage";
-            yield return "MedicareEligibilityInformationVerifiedForPersonMessage";
-            yield return "MedicationPackageSaveMessage";
-            yield return "NeedsAnalysisMessage";
-            yield return "NoteMessage";
-            yield return "OtherCoverageMessage";
-            yield return "PersonalInformationVerifiedForPersonMessage";
-            yield return "PersonMessage";
-            yield return "PersonSaveMedicareDataRequestMessage";
-            yield return "PersonSavePersonalInformationMessage";
-            yield return "PersonSavePersonalInformationResponseMessage";
-            yield return "PersonSaveRequestMessage";
-            yield return "PersonSaveShopperResponseMessage";
-            yield return "PhoneMessage";
-            yield return "PhoneSaveForPersonRequestMessage";
-            yield return "PhoneSaveForPersonResponseMessage";
-            yield return "PhonesVerifiedForPersonMessage";
-            yield return "PingMessage";
-            yield return "PlanDrugMessage";
-            yield return "PlanMessage";
-            yield return "PlanTypeMessage";
-            yield return "PlanTypeYearKeyMessage";
-            yield return "PongMessage";
-            yield return "PowerOfAttorneyDeleteForPersonMessage";
-            yield return "PowerOfAttorneySaveForPersonMessage";
-            yield return "PowerOfAttorneyVerifiedForPersonMessage";
-            yield return "PrioritizedMessage";
-            yield return "QuoteConfigurationMessage";
-            yield return "QuoteMessage";
-            yield return "QuoteSaveMedigapQualifyingQuestionsMessage";
-            yield return "RelationshipDeleteForPersonMessage";
-            yield return "RelationshipSaveForPersonRequestMessage";
-            yield return "RelationshipSaveForPersonResponseMessage";
-            yield return "RelationshipTypeMessage";
-            yield return "ResetPasswordInitiatedMessage";
-            yield return "SaveOnlineApplicationsRequestMessage";
-            yield return "SaveOnlineApplicationsResponseMessage";
-            yield return "SaveOtherCoverageMessage";
-            yield return "SaveOtherCoverageResponseMessage";
-            yield return "SecureCallForCustomersResponseMessage";
-            yield return "SendAvailabilityMessage";
-            yield return "SituationAnalysisSaveForPersonMessage";
-            yield return "SituationAnalysisSaveForPersonResponseMessage";
-            yield return "SSTFlagsSaveForPersonResponseMessage";
-            yield return "StatusInstanceMessage";
-            yield return "SubmittedApplicationRequestMessage";
-            yield return "SubmittedApplicationResponseMessage";
-            yield return "TaskDelayDueDateMessage";
-            yield return "TaskSaveRequestMessage";
-            yield return "TaskSaveResponseMessage";
-            yield return "TasksMarkAsCompletedRequestMessage";
-            yield return "TasksMarkAsCompletedResponseMessage";
-            yield return "TasksReAssignRequestMessage";
-            yield return "TasksResolvedMessage";
-            yield return "TaskUnMarkAsCompletedMessage";
             yield return "VoluntaryBenefitsEnrollmentResponseMessage";
         }
     }
