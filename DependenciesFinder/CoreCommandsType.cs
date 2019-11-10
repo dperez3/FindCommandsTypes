@@ -8,27 +8,45 @@ namespace DependenciesFinder
 {
     public class CoreCommandsType
     {
-        private readonly Type _type;
-        private IEnumerable<SearchCode> _code;
-
-        public CoreCommandsType(Type type) => _type = type;
-
-        public string Name => _type.Name;
-        public string FullName => _type.FullName;
-
-        public async Task<IEnumerable<Repository>> GetDependentRepositories()
+        private const string SSCRepoName = "extend-health/ssc-main";
+        private const string CCRepoName = "extend-health/service-bus-consumers";
+        private static readonly GitHubService _githubService = new GitHubService();
+        
+        internal CoreCommandsType(Type type, IEnumerable<SearchCode> searchCodes) : this(type.Name, type.FullName, searchCodes) { }
+        internal CoreCommandsType(string name, string fullName, IEnumerable<SearchCode> searchCodes)
         {
-            _code ??= await getCodeContainingName();
+            Name = name;
+            FullName = fullName;
+            SearchCodes = searchCodes;
+        }
+        
+        public IEnumerable<SearchCode> SearchCodes { get; }
 
-            return _code.Select(x => x.Repository).Where(isRepoTrulyDependent);
+        public string Namespace => "ExtendHealth.Core.Commands";
+        public string Name { get; }
+        public string FullName { get; }
+
+        public bool FoundInSSCCode => SearchCodes.Any(x => x.Repository.FullName == SSCRepoName);
+
+        public async Task<bool> CheckSSCDependencyAsync()
+        {
+            if (!FoundInSSCCode)
+                return false;
+
+            var dependencies = await GetDependentRepositoriesAsync(new []{ SSCRepoName });
+
+            return dependencies.Any();
         }
 
-        private async Task<IEnumerable<SearchCode>> getCodeContainingName() =>
-            await GitHubSearcher.GetCodeContainingTerm(Name);
+        public async Task<IEnumerable<Dependency>> GetDependentRepositoriesAsync(IEnumerable<string> repositories) =>
+            await _githubService.FindDependenciesAsync(repositories, new [] { Name, Namespace });
 
-        private bool isRepoTrulyDependent(Repository repository)
+        public async Task<IEnumerable<CoreConsumer>> GetConsumersAsync()
         {
-            return true;
+            var deps = await GetDependentRepositoriesAsync(new[] { CCRepoName });
+
+            //return deps.Cast<CoreConsumer>(); // TODO: Use actual CC instance
+            throw new NotImplementedException();
         }
     }
 }
