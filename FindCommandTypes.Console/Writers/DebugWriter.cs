@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using DependenciesFinder;
 
-namespace SSC_CC_Dependencies_Getter.Writers
+namespace FindCommandTypes.Console.Writers
 {
-    public class ConsoleWriter : IWriter
+    public class DebugWriter : IWriter
     {
         public async Task WriteAsync(IEnumerable<string> repositories, IEnumerable<CoreCommandsType> commands)
         {
             foreach (var command in commands)
             {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine(command.FullName ?? command.Name);
+                Debug.WriteLine(command.FullName ?? command.Name);
+                Debug.Indent();
                 foreach (var dependency in await command.GetDependentRepositoriesAsync(repositories))
                 {
                     print(dependency);
                 }
+                Debug.Unindent();
             }
         }
 
@@ -25,31 +27,29 @@ namespace SSC_CC_Dependencies_Getter.Writers
             IEnumerable<CoreCommandsType> seansCommandsNotFoundInDLL,
             IEnumerable<CoreCommandsType> dllCommandsNotFoundInSeansList)
         {
-            Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.WriteLine("Seans commands not found in DLL------------------");
+            Debug.WriteLine("Seans commands not found in DLL------------------");
+            Debug.Indent();
             await WriteAsync(repositories, seansCommandsNotFoundInDLL);
-            Console.ResetColor();
-
-            Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine("DLL commands not found in Seans List------------------");
+            Debug.Unindent();
+            
+            Debug.WriteLine("DLL commands not found in Seans List------------------");
+            Debug.Indent();
             await WriteAsync(repositories, dllCommandsNotFoundInSeansList);
-            Console.ResetColor();
+            Debug.Unindent();
         }
 
         private static void print(Dependency dependency)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(dependency.SearchCode.Repository.FullName);
+            Debug.WriteLine(dependency.SearchCode.Repository.FullName);
+            Debug.Indent();
             if (dependency.SearchCode.Repository.FullName == "extend-health/service-bus-consumers")
             {
-                Console.ForegroundColor = ConsoleColor.Gray;
                 foreach (var line in dependency.FoundLines)
                 {
-                    Console.WriteLine(line.Trim());
+                    Debug.WriteLine(line.Trim());
                 }
             }
-
-            Console.ResetColor();
+            Debug.Unindent();
         }
     }
 }

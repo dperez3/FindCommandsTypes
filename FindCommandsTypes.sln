@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSC CC Dependencies Getter", "SSC CC Dependencies Getter\SSC CC Dependencies Getter.csproj", "{1D715C02-8667-439C-BFE5-7E1E80264ABE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindCommandTypes.Console", "FindCommandTypes.Console\FindCommandTypes.Console.csproj", "{1D715C02-8667-439C-BFE5-7E1E80264ABE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependenciesFinder", "DependenciesFinder\DependenciesFinder.csproj", "{8F8A00FE-12D4-4FE3-A317-8DC11B422B68}"
 EndProject

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using DependenciesFinder;
 
-namespace SSC_CC_Dependencies_Getter.Writers
+namespace FindCommandTypes.Console.Writers
 {
     public interface IWriter
     {

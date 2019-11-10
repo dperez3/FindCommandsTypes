@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Timers;
 using DependenciesFinder;
-using Octokit;
-using SSC_CC_Dependencies_Getter.Writers;
+using FindCommandTypes.Console.Writers;
 
-namespace FindCommandsTypes
+namespace FindCommandTypes.Console
 {
     class Program
     {
@@ -55,7 +51,7 @@ namespace FindCommandsTypes
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                System.Console.WriteLine(e.ToString());
                 throw;
             }
         }
