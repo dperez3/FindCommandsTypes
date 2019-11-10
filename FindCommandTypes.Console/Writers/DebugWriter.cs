@@ -8,13 +8,13 @@ namespace FindCommandTypes.Console.Writers
 {
     public class DebugWriter : IWriter
     {
-        public async Task WriteAsync(IEnumerable<string> repositories, IEnumerable<CoreCommandsType> commands)
+        public async Task WriteAsync(IEnumerable<CoreCommandsType> commands)
         {
             foreach (var command in commands)
             {
                 Debug.WriteLine(command.FullName ?? command.Name);
                 Debug.Indent();
-                foreach (var dependency in await command.GetDependentRepositoriesAsync(repositories))
+                foreach (var dependency in await command.GetDependentRepositoriesAsync())
                 {
                     print(dependency);
                 }
@@ -23,18 +23,17 @@ namespace FindCommandTypes.Console.Writers
         }
 
         public async Task WriteComparisonAsync(
-            IEnumerable<string> repositories,
             IEnumerable<CoreCommandsType> seansCommandsNotFoundInDLL,
             IEnumerable<CoreCommandsType> dllCommandsNotFoundInSeansList)
         {
             Debug.WriteLine("Seans commands not found in DLL------------------");
             Debug.Indent();
-            await WriteAsync(repositories, seansCommandsNotFoundInDLL);
+            await WriteAsync(seansCommandsNotFoundInDLL);
             Debug.Unindent();
             
             Debug.WriteLine("DLL commands not found in Seans List------------------");
             Debug.Indent();
-            await WriteAsync(repositories, dllCommandsNotFoundInSeansList);
+            await WriteAsync(dllCommandsNotFoundInSeansList);
             Debug.Unindent();
         }
 

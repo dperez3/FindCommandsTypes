@@ -23,6 +23,9 @@ namespace DependenciesFinder
             Regex.Matches(RepositoryContent.Content, $".*{_command}.*")
                  .Select(x => x.Value);
 
+        public bool IsSSC => SearchCode.Repository.FullName == Defaults.SSCRepoName;
+        public bool IsCoreConsumers => SearchCode.Repository.FullName == Defaults.CCRepoName;
+
         public override string ToString()
         {
             return $"{SearchCode.Repository.FullName} / {SearchCode.Path}";

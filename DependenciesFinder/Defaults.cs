@@ -7,20 +7,26 @@ namespace DependenciesFinder
     {
         public const string CommandsDLLPath =
             "C:\\projects\\ssc-main\\packages\\ExtendHealth.Core.Commands\\lib\\net40\\ExtendHealth.Core.Commands.dll";
+        public const string CommandsAssemblyName = "ExtendHealth.Core.Commands";
+
+        public const string SSCRepoName = "extend-health/ssc-main";
+        public const string CCRepoName = "extend-health/service-bus-consumers";
+
 
         public static readonly string[] Repositories =
         {
             "extend-health/CarrierPolicy",
             "extend-health/pega-gateway-service",
             "extend-health/service-bus-commands",
-            "extend-health/service-bus-consumers",
-            "extend-health/ssc-main",
+            CCRepoName,
+            SSCRepoName,
             "extend-health/ssc-queries",
             "extend-health/ssc-query-handlers"
         };
 
         public static readonly IEnumerable<string> SeansCommands = getSeansSSCExclusiveCommands();
-        
+
+
         private static IEnumerable<string> getSeansSSCExclusiveCommands()
         {
             yield return "AccountStatusFlagsSaveForPersonMessage";

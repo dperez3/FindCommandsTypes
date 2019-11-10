@@ -26,7 +26,9 @@ namespace FindCommandTypes.TraditionalWeb.Controllers
             var res = await _coreCommandsService.GetAllCommandsUsedBySSC(Defaults.CommandsDLLPath,
                                                                          x => x.Name.EndsWith("Command") || x.Name.EndsWith("Message"),
                                                                          Defaults.Repositories);
-            return View(res.ToList());
+            var vms = await Task.WhenAll(res.Select(CoreCommandVM.fromDependencyAsync));
+            
+            return View(vms.ToList());
         }
 
         public IActionResult Privacy() { return View(); }

@@ -1,5 +1,5 @@
 ﻿@using DependenciesFinder
-@model List<DependenciesFinder.CoreCommandsType>
+@model List<CoreCommandVM>
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -26,13 +26,7 @@
                 </span>*@
             </th>
             <td>
-                @(
-                    string.Join(
-                        ", ",
-                        (await command.GetDependentRepositoriesAsync(Defaults.Repositories))
-                            .Select(x => x.SearchCode.Repository.FullName)
-                        )
-                )
+                @string.Join(", ", command.Dependencies.Select(x => x.SearchCode.Repository.FullName))
             </td>
         </tr>
     }

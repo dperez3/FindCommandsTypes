@@ -8,10 +8,8 @@ namespace DependenciesFinder
 {
     public class CoreCommandsType
     {
-        private const string SSCRepoName = "extend-health/ssc-main";
-        private const string CCRepoName = "extend-health/service-bus-consumers";
         private static readonly GitHubService _githubService = new GitHubService();
-        
+
         internal CoreCommandsType(Type type, IEnumerable<SearchCode> searchCodes) : this(type.Name, type.FullName, searchCodes) { }
         internal CoreCommandsType(string name, string fullName, IEnumerable<SearchCode> searchCodes)
         {
@@ -22,31 +20,23 @@ namespace DependenciesFinder
         
         public IEnumerable<SearchCode> SearchCodes { get; }
 
-        public string Namespace => "ExtendHealth.Core.Commands";
+        public string Namespace => Defaults.CommandsAssemblyName;
         public string Name { get; }
         public string FullName { get; }
 
-        public bool FoundInSSCCode => SearchCodes.Any(x => x.Repository.FullName == SSCRepoName);
+        public bool FoundInSSCCode => SearchCodes.Any(x => x.Repository.FullName == Defaults.SSCRepoName);
 
         public async Task<bool> CheckSSCDependencyAsync()
         {
             if (!FoundInSSCCode)
                 return false;
 
-            var dependencies = await GetDependentRepositoriesAsync(new []{ SSCRepoName });
+            var dependencies = await GetDependentRepositoriesAsync();
 
-            return dependencies.Any();
+            return dependencies.Any(x => x.IsSSC);
         }
 
-        public async Task<IEnumerable<Dependency>> GetDependentRepositoriesAsync(IEnumerable<string> repositories) =>
-            await _githubService.FindDependenciesAsync(repositories, new [] { Name, Namespace });
-
-        public async Task<IEnumerable<CoreConsumer>> GetConsumersAsync()
-        {
-            var deps = await GetDependentRepositoriesAsync(new[] { CCRepoName });
-
-            //return deps.Cast<CoreConsumer>(); // TODO: Use actual CC instance
-            throw new NotImplementedException();
-        }
+        public async Task<IEnumerable<Dependency>> GetDependentRepositoriesAsync() =>
+            await _githubService.FindDependenciesAsync(Defaults.Repositories, new [] { Name, Namespace });
     }
 }

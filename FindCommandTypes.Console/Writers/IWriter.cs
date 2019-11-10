@@ -6,10 +6,9 @@ namespace FindCommandTypes.Console.Writers
 {
     public interface IWriter
     {
-        Task WriteAsync(IEnumerable<string> repositories, IEnumerable<CoreCommandsType> coreCommandsTypes);
+        Task WriteAsync(IEnumerable<CoreCommandsType> coreCommandsTypes);
 
-        Task WriteComparisonAsync(IEnumerable<string> repositories,
-                                  IEnumerable<CoreCommandsType> seansCommandsNotFoundInDLL,
+        Task WriteComparisonAsync(IEnumerable<CoreCommandsType> seansCommandsNotFoundInDLL,
                                   IEnumerable<CoreCommandsType> dllCommandsNotFoundInSeansList);
     }
 }
