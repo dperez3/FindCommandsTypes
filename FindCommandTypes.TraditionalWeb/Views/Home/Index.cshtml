@@ -1,0 +1,40 @@
+﻿@using DependenciesFinder
+@model List<DependenciesFinder.CoreCommandsType>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">SSC Commands</h1>
+</div>
+
+<table class="table table-striped table-hover table-sm">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Dependencies</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var command in Model)
+    {
+        <tr data-toggle="tooltip" data-placement="bottom" title="@command.FullName">
+            <th scope="row">
+                <a class="nav-link active" href="#">@command.Name</a>
+                @*<span data-toggle="tooltip" data-placement="bottom" title="@command.FullName">
+                    <u>@command.Name</u>
+                </span>*@
+            </th>
+            <td>
+                @(
+                    string.Join(
+                        ", ",
+                        (await command.GetDependentRepositoriesAsync(Defaults.Repositories))
+                            .Select(x => x.SearchCode.Repository.FullName)
+                        )
+                )
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
