@@ -16,6 +16,7 @@ namespace DependenciesFinder
 
         public static readonly string[] Repositories =
         {
+            "extend-health/one-exchange",
             "extend-health/CarrierPolicy",
             "extend-health/pega-gateway-service",
             CCommandsRepoName,
@@ -24,6 +25,7 @@ namespace DependenciesFinder
             "extend-health/ssc-queries",
             "extend-health/ssc-query-handlers"
         };
+        //public static readonly string[] Repositories = null;
 
         public static readonly IEnumerable<string> SeansCommands = getSeansSSCExclusiveCommands();
 
