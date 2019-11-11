@@ -1,0 +1,43 @@
+@model CoreCommandVM
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+
+    var dependencies = Model
+        .Dependencies
+        .OrderBy(x => x.SearchCode.Repository.FullName)
+        .ThenBy(x => x.IsCoreConsumers);
+}
+
+<h2>@Model.Name</h2>
+<code>@Model.FullName</code>
+
+<h3>Dependencies</h3>
+<table class="table table-striped table-hover table-sm">
+    <thead>
+    <tr>
+        <th scope="col">Repo</th>
+        <th scope="col">Line</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var dependency in dependencies)
+    {
+        <tr>
+            <th scope="row">
+                @dependency.SearchCode.Repository.FullName
+            </th>
+            <td>
+                @foreach (var line in dependency.FoundLines)
+                {
+                    <code>@line</code>
+                    <br />
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+ 
