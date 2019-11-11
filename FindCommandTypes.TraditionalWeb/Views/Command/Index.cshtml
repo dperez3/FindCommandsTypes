@@ -36,11 +36,12 @@
                 }
             </th>
             <td>
-                @foreach (var line in dependency.FoundLines)
-                {
-                    <code>@line</code>
-                    <br />
-                }
+                <ul>
+                    @foreach (var line in dependency.FoundLines)
+                    {
+                        <li><code>@line</code></li>
+                    }
+                </ul>
             </td>
         </tr>
     }

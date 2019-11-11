@@ -16,14 +16,22 @@ namespace FindCommandTypes.TraditionalWeb.Models
         public string FullName { get; private set; }
         public IEnumerable<Dependency> Dependencies { get; private set; }
 
+        public bool IsExclusivelyUsedBySSC { get; private set; }
+
         public static async Task<CoreCommandVM> fromDependencyAsync(CoreCommandsType command)
         {
+            var dependentReposTask = command.GetDependentRepositoriesAsync();
+            var sscExclusivityTask = command.IsExclusivelyUsedBySSCAsync();
+
+            await Task.WhenAll(dependentReposTask, sscExclusivityTask);
+
             return new CoreCommandVM
             {
                 Namespace = command.Namespace,
                 Name = command.Name,
                 FullName = command.FullName,
-                Dependencies = await command.GetDependentRepositoriesAsync()
+                Dependencies = dependentReposTask.Result,
+                IsExclusivelyUsedBySSC = sscExclusivityTask.Result
             };
         }
     }

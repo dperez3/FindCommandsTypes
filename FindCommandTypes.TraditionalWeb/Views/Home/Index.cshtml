@@ -12,13 +12,14 @@
     <thead>
     <tr>
         <th scope="col">Name</th>
+        <th scope="col">SSC Exclusivity</th>
         <th scope="col">Dependencies</th>
     </tr>
     </thead>
     <tbody>
     @foreach (var command in Model)
     {
-        <tr data-toggle="tooltip" data-placement="bottom" title="@command.FullName">
+        <tr data-toggle="tooltip" data-placement="bottom" title="@command.FullName" class="@(command.IsExclusivelyUsedBySSC ? "table-success" : "")">
             <th scope="row">
                 <a class="nav-link active" href="command/@command.Name">@command.Name</a>
                 @*<span data-toggle="tooltip" data-placement="bottom" title="@command.FullName">
@@ -26,7 +27,15 @@
                 </span>*@
             </th>
             <td>
-                @string.Join(", ", command.Dependencies.Select(x => x.SearchCode.Repository.FullName))
+                <span>@command.IsExclusivelyUsedBySSC</span>
+            </td>
+            <td>
+                <ul>
+                    @foreach (var repo in command.Dependencies.Select(x => x.SearchCode.Repository.FullName).Distinct())
+                    {
+                        <li>@repo</li>
+                    }
+                </ul>
             </td>
         </tr>
     }

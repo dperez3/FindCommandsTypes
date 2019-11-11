@@ -26,7 +26,11 @@ namespace FindCommandTypes.TraditionalWeb.Controllers
             var res = await _coreCommandsService.GetAllCommandsUsedBySSC(Defaults.CommandsDLLPath,
                                                                          x => x.Name.EndsWith("Command") || x.Name.EndsWith("Message"),
                                                                          Defaults.Repositories);
-            var vms = await Task.WhenAll(res.Select(CoreCommandVM.fromDependencyAsync));
+            var vms =
+                    (await Task.WhenAll(res.Select(CoreCommandVM.fromDependencyAsync)))
+                    .OrderByDescending(x => x.IsExclusivelyUsedBySSC)
+                    .ThenBy(x => x.Dependencies.Count())
+                    .ThenBy(x => x.Name);
             
             return View(vms.ToList());
         }

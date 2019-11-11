@@ -26,14 +26,14 @@ namespace DependenciesFinder
 
         public bool FoundInSSCCode => SearchCodes.Any(x => x.Repository.FullName == Defaults.SSCRepoName);
 
-        public async Task<bool> CheckSSCDependencyAsync()
+        public async Task<bool> IsExclusivelyUsedBySSCAsync()
         {
             if (!FoundInSSCCode)
                 return false;
 
             var dependencies = await GetDependentRepositoriesAsync();
 
-            return dependencies.Any(x => x.IsSSC);
+            return dependencies.All(x => x.IsSSC || x.IsCoreConsumers || x.IsCoreCommands);
         }
 
         public async Task<IEnumerable<Dependency>> GetDependentRepositoriesAsync() =>

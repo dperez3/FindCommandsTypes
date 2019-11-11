@@ -25,6 +25,7 @@ namespace DependenciesFinder
 
         public bool IsSSC => SearchCode.Repository.FullName == Defaults.SSCRepoName;
         public bool IsCoreConsumers => SearchCode.Repository.FullName == Defaults.CCRepoName;
+        public bool IsCoreCommands => SearchCode.Repository.FullName == Defaults.CCommandsRepoName;
 
         public override string ToString()
         {

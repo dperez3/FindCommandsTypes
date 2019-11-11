@@ -11,13 +11,14 @@ namespace DependenciesFinder
 
         public const string SSCRepoName = "extend-health/ssc-main";
         public const string CCRepoName = "extend-health/service-bus-consumers";
+        public const string CCommandsRepoName = "extend-health/service-bus-commands";
 
 
         public static readonly string[] Repositories =
         {
             "extend-health/CarrierPolicy",
             "extend-health/pega-gateway-service",
-            "extend-health/service-bus-commands",
+            CCommandsRepoName,
             CCRepoName,
             SSCRepoName,
             "extend-health/ssc-queries",
