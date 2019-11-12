@@ -14,9 +14,12 @@ namespace DependenciesFinder
         public const string CCommandsRepoName = "extend-health/service-bus-commands";
 
 
+        // All Repos with "ExtendHealth.Core.Commands"?
+        // TODO: Compare with Sean's list of repositories
         public static readonly string[] Repositories =
         {
             "extend-health/one-exchange",
+            "extend-health/complemax-service",
             "extend-health/CarrierPolicy",
             "extend-health/pega-gateway-service",
             CCommandsRepoName,

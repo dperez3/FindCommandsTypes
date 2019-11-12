@@ -92,6 +92,9 @@ namespace DependenciesFinder
             if (page != 0)
                 request.Page = page;
 
+            request.Extensions = new[] { "cs" };
+            request.Language = Language.CSharp;
+
             return request;
         }
 
