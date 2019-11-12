@@ -1,0 +1,13 @@
+@model System.Collections.Generic.List<string>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Jira Tasks</h2>
+
+@foreach (var jiraTask in Model)
+{
+    <p>@jiraTask</p>
+}
