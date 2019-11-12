@@ -16,18 +16,26 @@ namespace DependenciesFinder
 
         // All Repos with "ExtendHealth.Core.Commands"?
         // TODO: Compare with Sean's list of repositories
-        public static readonly string[] Repositories =
+        public static string[] Repositories
         {
-            "extend-health/one-exchange",
-            "extend-health/complemax-service",
-            "extend-health/CarrierPolicy",
-            "extend-health/pega-gateway-service",
-            CCommandsRepoName,
-            CCRepoName,
-            SSCRepoName,
-            "extend-health/ssc-queries",
-            "extend-health/ssc-query-handlers"
-        };
+            get {
+                return new[]
+                {
+                    "extend-health/one-exchange",
+                    "extend-health/complemax-service",
+                    "extend-health/CarrierPolicy",
+                    "extend-health/pega-gateway-service",
+                    CCommandsRepoName,
+                    CCRepoName,
+                    SSCRepoName,
+                    "extend-health/ssc-queries",
+                    "extend-health/ssc-query-handlers"
+                }
+                .Concat(getSeansRepos())
+                .Distinct()
+                .ToArray();
+            }
+        }
         //public static readonly string[] Repositories = null;
 
         public static readonly IEnumerable<string> SeansCommands = getSeansSSCExclusiveCommands();
@@ -138,6 +146,14 @@ namespace DependenciesFinder
             yield return "UpsertVoluntaryBenefitsCommand";
             yield return "VerifiedForPersonMessage";
             yield return "VoluntaryBenefitsEnrollmentResponseMessage";
+        }
+
+        private static IEnumerable<string> getSeansRepos()
+        {
+            var origin =
+                "extend-health/service-bus-commands extend-health/ssc-main extend-health/exceptions-resolution-manager extend-health/payment-exceptions-manager extend-health/complemax-service extend-health/post-enrollment-coordination DevOps/mortservice extend-health/adminsuite-core extend-health/adminsuite extend-health/quoting extend-health/communications extend-health/one-exchange extend-health/enrollment extend-health/karl extend-health/employee-management-infrastructure extend-health/content-manager extend-health/extend-health-website extend-health/medicare-carrier-review  Telephony/telephony-manager";
+
+            return origin.Split(" ").Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower());
         }
     }
 }
