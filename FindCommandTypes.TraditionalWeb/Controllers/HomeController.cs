@@ -58,10 +58,7 @@ namespace FindCommandTypes.TraditionalWeb.Controllers
 
         private async Task<IEnumerable<CoreCommandVM>> getCommandsUsedBySscAsync()
         {
-            var res = await _coreCommandsService.GetAllCommandsUsedBySSC(Defaults.CommandsDLLPath,
-                                                                         x => x.Name.EndsWith("Command")
-                                                                              || x.Name.EndsWith("Message"),
-                                                                         Defaults.Repositories);
+            var res = await _coreCommandsService.GetAllCommandsUsedBySSCAsync();
 
             var vms =
                 (await Task.WhenAll(res.Select(CoreCommandVM.fromDependencyAsync)))

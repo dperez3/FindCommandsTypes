@@ -19,25 +19,32 @@ namespace DependenciesFinder
             _gitHubService = gitHubService;
         }
 
-        public async Task<IEnumerable<CoreCommandsType>> GetAllCommandsUsedBySSC(string commandsDllPath, Func<Type, bool> typeFilter, IEnumerable<string> repositories)
+        public async Task<IEnumerable<CoreCommandsType>> GetAllCommandsAsync()
         {
-            var types = getAllPublicTypes(commandsDllPath)
-                .Where(typeFilter);
+            var types = getAllPublicTypes(Defaults.CommandsDLLPath)
+                .Where(x => x.Name.EndsWith("Command") || x.Name.EndsWith("Message"));
 
-            var cacheKey = getCacheKey(types, repositories);
+            var cacheKey = getCacheKey(types, Defaults.Repositories);
+
             if (_cache.TryGetValue(cacheKey, out var cacheEntry))
                 return cacheEntry as IEnumerable<CoreCommandsType>;
-            
-            var coreCommandsTypes = await Task.WhenAll(
-                        types.Select(
-                                           async x => new CoreCommandsType(x, await _gitHubService.FindCSharpCodeAsync(repositories, x.Name))));
 
-            var results = coreCommandsTypes.Where(x => x.FoundInSSCCode);
+            var results = await Task.WhenAll(
+                              types.Select(
+                                  async x => new CoreCommandsType(x, await _gitHubService.FindCSharpCodeAsync(Defaults.Repositories, x.Name))));
+            
             _cache.Set(cacheKey, results);
+
             return results;
         }
 
-        public async Task<IEnumerable<CoreCommandsType>> GetAllCommandsUsedBySSC(IEnumerable<string> commandNames,
+        public async Task<IEnumerable<CoreCommandsType>> GetAllCommandsUsedBySSCAsync()
+        {
+            var commands = await GetAllCommandsAsync();
+            return commands.Where(x => x.FoundInSSCCode);
+        }
+
+        public async Task<IEnumerable<CoreCommandsType>> GetAllCommandsUsedBySSCAsync(IEnumerable<string> commandNames,
                                                                                  IEnumerable<string> repositories)
         {
             var cacheKey = getCacheKey(commandNames, repositories);
@@ -55,21 +62,8 @@ namespace DependenciesFinder
 
         public async Task<IEnumerable<CoreCommandsType>> GetDeadCommandsAsync()
         {
-            var types = getAllPublicTypes(Defaults.CommandsDLLPath)
-                            .Where(x => x.Name.EndsWith("Command") || x.Name.EndsWith("Message"));
-
-            var cacheKey = getCacheKey(types, Defaults.Repositories);
-
-            if (_cache.TryGetValue(cacheKey, out var cacheEntry))
-                return cacheEntry as IEnumerable<CoreCommandsType>;
-
-            var coreCommandsTypes = await Task.WhenAll(
-                                        types.Select(
-                                            async x => new CoreCommandsType(x, await _gitHubService.FindCSharpCodeAsync(Defaults.Repositories, x.Name))));
-
-            var results = coreCommandsTypes.Where(x => x.IsDeadCode);
-            _cache.Set(cacheKey, results);
-            return results;
+            var commands = await GetAllCommandsAsync();
+            return commands.Where(x => x.IsDeadCode);
         }
 
         private static IEnumerable<Type> getAllPublicTypes(string commandsDllPath)

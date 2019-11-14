@@ -26,11 +26,9 @@ namespace FindCommandTypes.Console
         {
             try
             {
-                var seansCommands = await _coreCommandsService.GetAllCommandsUsedBySSC(Defaults.SeansCommands,
+                var seansCommands = await _coreCommandsService.GetAllCommandsUsedBySSCAsync(Defaults.SeansCommands,
                                                                                        Defaults.Repositories);
-                var dllCommands = await _coreCommandsService.GetAllCommandsUsedBySSC(Defaults.CommandsDLLPath, 
-                                                                                     x => x.Name.EndsWith("Command") || x.Name.EndsWith("Message"),
-                                                                                     Defaults.Repositories);
+                var dllCommands = await _coreCommandsService.GetAllCommandsUsedBySSCAsync();
 
                 await _writer.WriteComparisonAsync(seansCommands.Where(x => dllCommands.All(y => y.Name != x.Name)),
                         dllCommands.Where(x => seansCommands.All(y => y.Name != x.Name)));

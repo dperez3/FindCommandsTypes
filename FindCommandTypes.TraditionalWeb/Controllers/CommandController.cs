@@ -18,10 +18,7 @@ namespace FindCommandTypes.TraditionalWeb.Controllers
         public async Task<IActionResult> Index([FromRoute] string commandName)
         {
             var res = await _coreCommandsService
-                          .GetAllCommandsUsedBySSC(Defaults.CommandsDLLPath,
-                                                   x => x.Name.EndsWith("Command")
-                                                        || x.Name.EndsWith("Message"),
-                                                   Defaults.Repositories);
+                          .GetAllCommandsAsync();
 
             var found = res.SingleOrDefault(x => x.Name == commandName);
 
