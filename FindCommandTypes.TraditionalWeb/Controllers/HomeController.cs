@@ -7,6 +7,7 @@ using DependenciesFinder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using FindCommandTypes.TraditionalWeb.Models;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace FindCommandTypes.TraditionalWeb.Controllers
 {
@@ -23,16 +24,24 @@ namespace FindCommandTypes.TraditionalWeb.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var vms = await getCoreCommandsAsync();
+            var vms = await getCommandsUsedBySscAsync();
             
             return View(vms.ToList());
+        }
+
+        [HttpGet("dead-commands")]
+        public async Task<IActionResult> GetDeadCommands()
+        {
+            var deadCommands = await getDeadCommandsAsync();
+
+            return View(deadCommands.ToList());
         }
 
         [HttpGet("jira")]
         public async Task<IActionResult> GetJiraSubTasks()
         {
             var sscExclusiveCommands =
-                (await getCoreCommandsAsync())
+                (await getCommandsUsedBySscAsync())
                 .Where(x => x.IsExclusivelyUsedBySSC);
 
             var jiraTasks = sscExclusiveCommands
@@ -47,7 +56,7 @@ namespace FindCommandTypes.TraditionalWeb.Controllers
                 $"- Replace {command.Name} / cfield:\"Assigned Team:@inherit\" / description:\"h1. {command.Name}\n# Confirm this command fits the Req/Resp model.\n ## If it *does NOT*, close this task.\n ## If it *does*, continue to move this out of Core Consumers and into the SSC BFF.\"";
         }
 
-        private async Task<IEnumerable<CoreCommandVM>> getCoreCommandsAsync()
+        private async Task<IEnumerable<CoreCommandVM>> getCommandsUsedBySscAsync()
         {
             var res = await _coreCommandsService.GetAllCommandsUsedBySSC(Defaults.CommandsDLLPath,
                                                                          x => x.Name.EndsWith("Command")
@@ -58,6 +67,18 @@ namespace FindCommandTypes.TraditionalWeb.Controllers
                 (await Task.WhenAll(res.Select(CoreCommandVM.fromDependencyAsync)))
                 .OrderByDescending(x => x.IsExclusivelyUsedBySSC)
                 .ThenBy(x => x.Dependencies.Count())
+                .ThenBy(x => x.Name);
+
+            return vms;
+        }
+
+        private async Task<IEnumerable<CoreCommandVM>> getDeadCommandsAsync()
+        {
+            var res = await _coreCommandsService.GetDeadCommandsAsync();
+
+            var vms =
+                (await Task.WhenAll(res.Select(CoreCommandVM.fromDependencyAsync)))
+                .OrderBy(x => x.Dependencies.Count())
                 .ThenBy(x => x.Name);
 
             return vms;

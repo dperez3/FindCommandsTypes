@@ -26,6 +26,23 @@ namespace DependenciesFinder
 
         public bool FoundInSSCCode => SearchCodes.Any(x => x.Repository.FullName == Defaults.SSCRepoName);
 
+        public bool IsDeadCode
+        {
+            get {
+                var isOnlySomeRepos = SearchCodes.All(x =>
+                                                     x.Repository.FullName == Defaults.CCommandsRepoName
+                                                     || x.Repository.FullName == Defaults.CCRepoName
+                                                     || x.Repository.FullName == Defaults.SSCRepoName);
+
+                var onlyTwoReposMax = SearchCodes
+                                   .Select(x => x.Repository)
+                                   .Distinct(new RepositoryComparer())
+                                   .Count() <= 2;
+
+                return isOnlySomeRepos && onlyTwoReposMax;
+            }
+        }
+
         public async Task<bool> IsExclusivelyUsedBySSCAsync()
         {
             if (!FoundInSSCCode)

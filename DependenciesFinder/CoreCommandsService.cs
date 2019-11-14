@@ -53,6 +53,25 @@ namespace DependenciesFinder
             return results;
         }
 
+        public async Task<IEnumerable<CoreCommandsType>> GetDeadCommandsAsync()
+        {
+            var types = getAllPublicTypes(Defaults.CommandsDLLPath)
+                            .Where(x => x.Name.EndsWith("Command") || x.Name.EndsWith("Message"));
+
+            var cacheKey = getCacheKey(types, Defaults.Repositories);
+
+            if (_cache.TryGetValue(cacheKey, out var cacheEntry))
+                return cacheEntry as IEnumerable<CoreCommandsType>;
+
+            var coreCommandsTypes = await Task.WhenAll(
+                                        types.Select(
+                                            async x => new CoreCommandsType(x, await _gitHubService.FindCSharpCodeAsync(Defaults.Repositories, x.Name))));
+
+            var results = coreCommandsTypes.Where(x => x.IsDeadCode);
+            _cache.Set(cacheKey, results);
+            return results;
+        }
+
         private static IEnumerable<Type> getAllPublicTypes(string commandsDllPath)
         {
             return Assembly.LoadFrom(commandsDllPath)
