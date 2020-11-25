@@ -6,7 +6,7 @@ namespace DependenciesFinder
     public static class Defaults
     {
         public const string CommandsDLLPath =
-            "C:\\projects\\ssc-main\\packages\\ExtendHealth.Core.Commands\\lib\\net40\\ExtendHealth.Core.Commands.dll";
+            @"C:\projects\service-bus-commands\src\ExtendHealth.Core.Commands\bin\Debug\net461\ExtendHealth.Core.Commands.dll";
         public const string CommandsAssemblyName = "ExtendHealth.Core.Commands";
 
         public const string SSCRepoName = "extend-health/ssc-main";
